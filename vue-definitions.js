@@ -384,9 +384,11 @@ let app = new Vue({
     pullData(selectedData) {
 
       if (selectedData == 'Confirmed Cases') {
-       Plotly.d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", this.processData);
+       //Plotly.d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", this.processData);
+ 	   processDailyData("Confirmed", this.processData);
       } else if (selectedData == 'Reported Deaths') {
-       Plotly.d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", this.processData);
+       //Plotly.d3.csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv", this.processData);
+ 	   processDailyData("Deaths", this.processData);
       }
     },
 
@@ -395,7 +397,8 @@ let app = new Vue({
     },
 
     processData(data) {
-
+	  //console.log("Inside original 'processData'.  Data has ", data.length, "rows.");
+	  
       let countriesToLeaveOut = ['Cruise Ship', 'Diamond Princess'];
 
       let renameCountries = {
@@ -405,11 +408,14 @@ let app = new Vue({
 
       let countries = data.map(e => e["Country/Region"]);
       countries = this.removeRepeats(countries);
+      
+      
+      //console.log("countries: ", countries);
 
       let dates = Object.keys(data[0]).slice(4);
       this.dates = dates;
 
-      //this.day = this.dates.length;
+      //console.log("this.dates: ", this.dates);
 
       let myData = [];
       for (let country of countries){
@@ -419,6 +425,10 @@ let app = new Vue({
         for (let date of dates) {
           let sum = countryData.map(e => parseInt(e[date]) || 0).reduce((a,b) => a+b);
           arr.push(sum);
+        }
+        
+        if (country=="King") {
+        	console.log("US 'arr':", arr);
         }
 
         if (!countriesToLeaveOut.includes(country)) {
@@ -439,7 +449,10 @@ let app = new Vue({
       }
 
       this.covidData = myData.filter(e => this.myMax(...e.cases) >= this.minCasesInCountry);
+      //console.log("myData.length", myData.length, "this.covidData.length", this.covidData.length);
       this.countries = this.covidData.map(e => e.country).sort();
+      
+      //console.log("this.countries", this.countries)
 
     },
 

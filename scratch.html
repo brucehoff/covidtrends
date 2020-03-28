@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Washington State Covid Trends</title>
+
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <script src="libraries/plotly.min.js"></script>
+  <script src="libraries/dailyDataCollation.js"></script>
+  <script src="libraries/vue.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="normalize.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+ </head>
+<body>
+
+	<div id="root">
+		<script>
+			function mycallback(data) {
+			document.getElementById("root").innerHTML = 
+				"We now have a dataset with "+data.length+" rows and "+Object.keys(data[0]).length+" columns.";
+			}
+			processDailyData("Confirmed", mycallback);
+		</script>
+	</div>
+
+</body>
+
+</html>

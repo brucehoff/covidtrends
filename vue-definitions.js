@@ -397,9 +397,7 @@ let app = new Vue({
     },
 
     processData(data) {
-	  //console.log("Inside original 'processData'.  Data has ", data.length, "rows.");
-	  
-      let countriesToLeaveOut = ['Cruise Ship', 'Diamond Princess'];
+     let countriesToLeaveOut = ['Cruise Ship', 'Diamond Princess'];
 
       let renameCountries = {
         'Taiwan*': 'Taiwan',
@@ -409,13 +407,8 @@ let app = new Vue({
       let countries = data.map(e => e["Country/Region"]);
       countries = this.removeRepeats(countries);
       
-      
-      //console.log("countries: ", countries);
-
       let dates = Object.keys(data[0]).slice(4);
       this.dates = dates;
-
-      //console.log("this.dates: ", this.dates);
 
       let myData = [];
       for (let country of countries){
@@ -425,10 +418,6 @@ let app = new Vue({
         for (let date of dates) {
           let sum = countryData.map(e => parseInt(e[date]) || 0).reduce((a,b) => a+b);
           arr.push(sum);
-        }
-        
-        if (country=="King") {
-        	console.log("US 'arr':", arr);
         }
 
         if (!countriesToLeaveOut.includes(country)) {
@@ -449,11 +438,7 @@ let app = new Vue({
       }
 
       this.covidData = myData.filter(e => this.myMax(...e.cases) >= this.minCasesInCountry);
-      //console.log("myData.length", myData.length, "this.covidData.length", this.covidData.length);
       this.countries = this.covidData.map(e => e.country).sort();
-      
-      //console.log("this.countries", this.countries)
-
     },
 
     play() {
@@ -616,7 +601,7 @@ let app = new Vue({
 
     isHidden: true,
 
-    selectedCountries: ['Australia', 'Canada', 'China', 'France', 'Germany', 'Iran', 'Italy', 'Japan', 'South Korea', 'Spain', 'Switzerland', 'US', 'United Kingdom', 'India', 'Pakistan'],
+    selectedCountries: ['Washington', 'New York', 'New Jersey', 'Florida', 'California', 'Oregon', 'Colorado', 'Texas', 'Massachusetts'],
 
     graphMounted: false,
 

@@ -8,9 +8,9 @@ function processDailyData(dataColumn, callback) {
 		url: "https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports",
 		type: "GET",
   		success: function(fileList) {
+  			initializeGlobalVars();
 			var dateStampList = [];
 			var dateStampURLMap = {};
-			this.cumulativeRegion = {};
 			for (var file of fileList) {
 				if (/.csv$/.test(file.name)) {
 					var datePrefix = file.name.substring(0, file.name.length-4)
@@ -21,8 +21,6 @@ function processDailyData(dataColumn, callback) {
 			}
 			dateStampList.sort();
 			//console.log("There are", dateStampList.length, "date stamps.");
-			this.threadsStarted=0;
-			this.threadsCompleted=0;
 			for (dateStamp of dateStampList) {
 				let ds = dateStampURLMap[dateStamp].dateLabel; //dateStamp
 				Plotly.d3.csv(dateStampURLMap[dateStamp].url, function(data){ dateFileHandler(data, ds, dataColumn, callback)});
@@ -34,13 +32,20 @@ function processDailyData(dataColumn, callback) {
 		}
 	})
 }
+
 var cachedResult={};
 var cumulativeRegion = {};
 var threadsStarted = 0;
 var threadsCompleted = 0;
+
+function initializeGlobalVars() {
+	this.cumulativeRegion = {};
+	this.threadsStarted=0;
+	this.threadsCompleted=0;
+}
 function threadsCompletedIncr() {this.threadsCompleted++};
 function areAllThreadsDone() {
-	console.log("ThreadsStarted:", this.threadsStarted, "threadsCompleted:", this.threadsCompleted)
+	//console.log("ThreadsStarted:", this.threadsStarted, "threadsCompleted:", this.threadsCompleted)
 	return this.threadsCompleted>=this.threadsStarted;
 }
 
@@ -63,16 +68,16 @@ function dateFileHandler(rows, dateStamp, dataColumn, callback) {
 	threadsCompletedIncr();
 	if(areAllThreadsDone()) {
 		result = processCumulativeRegionData()
-		cachedResult[dataColumn]=result
+		this.cachedResult[dataColumn]=result
 		callback(result)
 	}
 }
 
 function processCumulativeRegionData() {
 	var allDateStamps = [];
+	var region;
 	for (region of Object.keys(this.cumulativeRegion)) {
 		var singleRegionData = this.cumulativeRegion[region];
-		//console.log("Region", region, "Number of dates:", Object.keys(singleRegionData).length);
 		for (ds of Object.keys(singleRegionData)) {
 			if (allDateStamps.indexOf(ds)==-1) {
 				allDateStamps.push(ds);
@@ -80,7 +85,6 @@ function processCumulativeRegionData() {
 		}
 	}
 	allDateStamps.sort();
-	//console.log("There are ", allDateStamps.length, " date stamps.");
 	var result = [];
 	// each row is one region
 	for (region of Object.keys(this.cumulativeRegion)) {
@@ -91,6 +95,7 @@ function processCumulativeRegionData() {
 		row["Country/Region"]=region; // TODO change to US
 		row["Lat"]="na";
 		row["Long"]="na";
+		var dateStamp;
 		for (dateStamp of allDateStamps) {
 			if (dateStamp in singleRegionData) {
 				row[dateStamp]=singleRegionData[dateStamp];
